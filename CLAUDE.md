@@ -4,10 +4,10 @@ Sitio de una sola página para **Centro de Estudios de Desarrollo Regional
 CEDER SpA** (Puerto Montt, Región de Los Lagos). Perfil institucional pensado
 también para postular a licitaciones públicas.
 
-**Todavía sin publicar.** URL de producción prevista:
-<https://seiler18.github.io/ceder/> (repo `ceder`, cuenta `seiler18`). El
-`base` de Vite y `site.url` ya están cuadrados: publicar es ejecutar la skill
-`desplegar`.
+**En producción:** <https://seiler18.github.io/ceder/>
+(repo [seiler18/ceder](https://github.com/seiler18/ceder), rama `main`; el
+workflow publica `dist/` en `gh-pages` en cada push). Cualquier push a `main`
+republica el sitio en ~2 minutos: ver la skill `desplegar`.
 
 Generado con **WebMaker** (`../WebMaker/`). Este archivo describe **el estado
 actual y cómo se trabaja aquí**. No lleva historial: eso vive en

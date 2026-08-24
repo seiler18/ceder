@@ -18,5 +18,6 @@ No se duplica información entre ellos. Para añadir un hito, ver la skill
 
 | # | Fecha | Título | Estado |
 |---|---|---|---|
+| [0003](0003-fondo-vivo-y-publicacion.md) | 2026-08-23 | Fondo vivo, corte del hero resuelto y publicacion | completado |
 | [0002](0002-ajustes-visuales-y-alcance-nacional.md) | 2026-08-23 | Ajustes visuales tras la primera revisión y alcance nacional | completado |
 | [0001](0001-sitio-inicial-desde-los-estatutos.md) | 2026-08-23 | Sitio inicial construido desde los estatutos | completado |
