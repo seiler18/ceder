@@ -1,0 +1,113 @@
+/* ============================================================
+   TOKENS — la paleta y las medidas del sitio, en un solo sitio
+
+   REGLA DEL PROYECTO: ningún color literal fuera de este archivo. Si
+   necesitas un tono que no está, añádelo aquí como token y úsalo por nombre.
+   En cuanto aparece un `#1a2b3c` suelto en un componente, cambiar la
+   identidad del sitio pasa de editar diez líneas a buscar por todo el CSS.
+
+   Para cambiar de identidad visual completa, sustituye el bloque de color de
+   abajo por una de las paletas de WebMaker/referencia/paletas.md. Las
+   medidas y los nombres no cambian, así que nada más se rompe.
+   ============================================================ */
+
+:root {
+  /* ----- Color: fondos ----- */
+  --bg:            #0f1419;   /* fondo general */
+  --bg-2:          #131a21;   /* fondo alterno, para alternar secciones */
+  --surface:       #1a232c;   /* tarjetas y paneles */
+  --surface-2:     #151d25;   /* paneles hundidos, campos de formulario */
+
+  /* ----- Color: marca ----- */
+  --primario:      #3b6ea5;
+  --primario-claro:#7ba7d4;
+  --acento:        #9ab8d4;
+
+  /* ----- Color: texto ----- */
+  --texto:         #e8eaed;
+  --texto-tenue:   #9aa5b1;
+  --texto-fuerte:  #ffffff;
+
+  /* ----- Color: superficies interactivas -----
+     Fondo de una ficha (tarjeta o destacado) con el puntero encima. Un punto
+     más claro que --surface: lo justo para que se note que responde. */
+  --superficie-viva: #22303c;
+
+  /* Lavados del primario. Existen porque cuatro sitios del CSS llevaban
+     `rgba(37, 99, 235, …)` escrito a mano —el azul de la paleta ANTERIOR—, así
+     que al cambiar la identidad el icono de las tarjetas y el enlace activo
+     del menú se quedaron con el azul viejo. Ahora salen de aquí y cambian con
+     la paleta. */
+  --primario-tenue:        rgba(59, 110, 165, 0.16);
+  --primario-tenue-fuerte: rgba(59, 110, 165, 0.26);
+
+  /* Fondos translúcidos (barra fija, cajón del menú, botón fantasma). Van con
+     alfa porque encima llevan `backdrop-filter: blur` y tienen que dejar ver
+     el contenido difuminado por detrás; un color opaco anularía el efecto.
+     Mismo caso que los de arriba: estaban escritos a mano con el negro azulado
+     de la paleta anterior, así que la barra se veía más azul que el fondo. */
+  --barra-fondo:       rgba(15, 20, 25, 0.82);
+  --barra-fondo-opaca: rgba(15, 20, 25, 0.97);   /* cajón móvil: casi opaco */
+  --velo:              rgba(15, 20, 25, 0.55);   /* telón del modal */
+  --superficie-velada: rgba(19, 26, 33, 0.6);    /* campos y botón fantasma */
+
+  /* ----- Color: bordes y brillos ----- */
+  --borde:         rgba(255, 255, 255, 0.07);
+  --borde-vivo:    rgba(154, 184, 212, 0.40);
+  --brillo:        rgba(59, 110, 165, 0.20);
+  --brillo-acento: rgba(154, 184, 212, 0.25);
+
+  /* Versiones más intensas de los dos anteriores, SOLO para las luces que se
+     mueven en el fondo (portada y halos de página). Con los valores tenues de
+     arriba el movimiento existía pero no se percibía: al desplazarse, una luz
+     casi transparente no se distingue del fondo. Los tenues siguen usándose
+     en bordes, sombras y brillos de icono, donde sí deben ser discretos. */
+  --brillo-movil:        rgba(59, 110, 165, 0.42);
+  --brillo-movil-acento: rgba(154, 184, 212, 0.30);
+  --brillo-movil-frio:   rgba(123, 167, 212, 0.24);
+
+  /* ----- Color: estados ----- */
+  --ok:            #34d399;
+  --error:         #f87171;
+
+  /* ----- Degradados ----- */
+  --degradado:      linear-gradient(135deg, var(--primario) 0%, var(--acento) 100%);
+  --degradado-texto:linear-gradient(135deg, var(--primario-claro) 0%, var(--acento) 100%);
+
+  /* ----- Tipografía -----
+     Dos familias como máximo: una para títulos y otra para texto. Tres
+     empiezan a leerse como un collage. Si solo usas una, deja las dos
+     variables con el mismo valor. */
+  --fuente-titulos: 'Montserrat', system-ui, sans-serif;
+  --fuente-texto:   'Open Sans', system-ui, sans-serif;
+
+  /* ----- Formas ----- */
+  --radio:         16px;
+  --radio-sm:      10px;
+
+  /* ----- Medidas del armazón -----
+     Son tokens y no números sueltos porque las leen varios archivos: el
+     margen del contenido, la posición de la barra fija y el hueco que se
+     reserva al pie en móvil tienen que cuadrar entre sí. */
+  --sidebar-w:     250px;
+  --topbar-h:      64px;
+  --barra-movil-h: 62px;
+
+  /* Ancho de lectura del contenido. Más de ~1180px y las líneas de texto se
+     hacen incómodamente largas en un monitor ancho. */
+  --ancho-max:     1180px;
+  --ancho-texto:   72ch;
+
+  /* ----- Sombras ----- */
+  --sombra:        0 12px 40px rgba(0, 0, 0, 0.45);
+  --sombra-suave:  0 6px 20px rgba(0, 0, 0, 0.30);
+
+  /* ----- Capas -----
+     Escala explícita para no ir adivinando. El modal usa <dialog>, que el
+     navegador pinta en su propia capa por encima de todo, así que no
+     necesita número. */
+  --z-contenido:   1;
+  --z-barra:       100;
+  --z-sidebar:     110;
+  --z-menu-movil:  120;
+}
