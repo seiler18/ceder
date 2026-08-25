@@ -4,7 +4,7 @@
           ${e.icon?`<i class="${e.icon}" aria-hidden="true"></i>`:``}${e.label}
         </a>
       `).join(``),n=r.cinta.length?`
-      <ul class="hero-cinta" aria-label="En cifras">
+      <ul class="hero-cinta" aria-label="En cifras" data-anim="subir">
         ${r.cinta.map(e=>`
           <li>
             <span class="hero-cinta-dato">${e.dato}</span>
@@ -16,13 +16,25 @@
     <header class="hero" id="inicio">
       <div class="hero-fondo" aria-hidden="true"></div>
 
-      <div class="hero-contenido">
-        ${r.antetitulo?`<p class="hero-antetitulo">${r.antetitulo}</p>`:``}
-        <h1 class="hero-titulo">${e.nombre}</h1>
-        ${e.lema?`<p class="hero-lema">«${e.lema}»</p>`:``}
-        <p class="hero-bajada">${r.bajada}</p>
+      <!-- SECUENCIA DE ENTRADA DE LA PORTADA. El atributo data-anim-secuencia
+           escalona a los hijos 70ms cada uno (src/lib/reveal.js), y el orden
+           del HTML es el orden en el que se quiere que se lean: antetítulo →
+           nombre → lema → bajada → botones → cifras. Es lo mismo que se
+           leería sin animación, solo que la página lo va marcando. Los seis a
+           la vez —lo que había antes, sin animación ninguna en la portada—
+           obligan al visitante a decidir por dónde empieza.
 
-        <div class="hero-acciones">${t}</div>
+           OJO: en este comentario no puede haber comillas invertidas. Está
+           DENTRO de un literal de plantilla, y una comilla invertida lo cierra
+           ahí mismo: el archivo deja de compilar con un error que señala la
+           línea siguiente y no dice nada del comentario. -->
+      <div class="hero-contenido" data-anim-secuencia>
+        ${r.antetitulo?`<p class="hero-antetitulo" data-anim="subir">${r.antetitulo}</p>`:``}
+        <h1 class="hero-titulo" data-anim="subir">${e.nombre}</h1>
+        ${e.lema?`<p class="hero-lema" data-anim="subir">«${e.lema}»</p>`:``}
+        <p class="hero-bajada" data-anim="subir">${r.bajada}</p>
+
+        <div class="hero-acciones" data-anim="subir">${t}</div>
         ${n}
       </div>
 
@@ -48,7 +60,7 @@
       </div>
     </section>
   `}function o(e){let t=e.destacados?.length?`
-      <ul class="destacados">
+      <ul class="destacados" data-anim-secuencia>
         ${e.destacados.map(e=>`
           <li class="destacado" data-anim="subir">
             ${e.icon?`<i class="${e.icon}" aria-hidden="true"></i>`:``}
@@ -60,12 +72,12 @@
         `).join(``)}
       </ul>
     `:``,n=e.imagen?`
-      <figure class="bloque-figura" data-anim="subir">
+      <figure class="bloque-figura" data-anim="escala">
         <img src="${e.imagen.src}" alt="${e.imagen.alt}" loading="lazy">
         ${e.imagen.pie?`<figcaption>${e.imagen.pie}</figcaption>`:``}
       </figure>
     `:``,r=e.imagen?`
-      <div class="bloque-dos-columnas" data-lado="${e.ladoImagen||`derecha`}">
+      <div class="bloque-dos-columnas" data-lado="${e.ladoImagen||`derecha`}" data-anim-secuencia>
         <div class="bloque-texto" data-anim="subir">${e.cuerpo}</div>
         ${n}
       </div>
@@ -102,7 +114,12 @@
       </div>
     `}let i=`
     ${r}
-    <div class="rejilla" data-densidad="${e.densidad||`amplia`}" data-rejilla="${e.id}">
+    <!-- data-anim-secuencia: las tarjetas entran escalonadas en vez de todas
+         a la vez. Va en la rejilla y no en cada tarjeta porque el retardo lo
+         calcula reveal.js con la posición del hijo: añadir una tarjeta no
+         obliga a renumerar nada. -->
+    <div class="rejilla" data-densidad="${e.densidad||`amplia`}" data-rejilla="${e.id}"
+         data-anim-secuencia>
       ${t.map(n).join(``)}
     </div>
     <p class="rejilla-vacia" hidden>No hay nada en esta área todavía.</p>
@@ -288,7 +305,7 @@
         © ${e.nombre} ${new Date().getFullYear()}. Todos los derechos reservados.
       </p>
     </footer>
-  `}function A({linkSelector:e=`[data-spy-link]`,offset:t=96}={}){let n=new Map;for(let t of document.querySelectorAll(e)){let e=document.getElementById(t.dataset.spyLink);e&&(n.has(e)||n.set(e,{section:e,links:[]}),n.get(e).links.push(t))}let r=[...n.values()];if(!r.length)return()=>{};let i=null,a=!1;function o(e){if(e!==i){if(i)for(let e of i.links)e.classList.remove(`is-active`),e.removeAttribute(`aria-current`);for(let t of e.links)t.classList.add(`is-active`),t.setAttribute(`aria-current`,`true`);i=e}}function s(){a=!1;let e=window.scrollY;if(e+window.innerHeight>=document.documentElement.scrollHeight-4){o(r[r.length-1]);return}let n=e+t,i=r[0];for(let t of r)if(t.section.getBoundingClientRect().top+e<=n)i=t;else break;o(i)}function c(){a||(a=!0,requestAnimationFrame(s))}return window.addEventListener(`scroll`,c,{passive:!0}),window.addEventListener(`resize`,c),window.addEventListener(`load`,c),s(),c}var j=`0px 0px -12% 0px`;function M(){let e=document.querySelectorAll(`[data-anim]`);if(!e.length)return;if(window.matchMedia(`(prefers-reduced-motion: reduce)`).matches||!(`IntersectionObserver`in window)){for(let t of e)t.classList.add(`anim-visible`);return}let t=new IntersectionObserver((e,t)=>{for(let n of e){if(!n.isIntersecting)continue;let e=Number(n.target.dataset.animEspera)||0;e&&(n.target.style.transitionDelay=`${e}ms`),n.target.classList.add(`anim-visible`),t.unobserve(n.target)}},{rootMargin:j,threshold:.05});for(let n of e)t.observe(n)}function N(){let e=document.querySelectorAll(`[data-modal]`);if(e.length){for(let t of e)t.addEventListener(`click`,()=>{let e=document.querySelector(t.dataset.modal);if(!e){console.warn(`Modal no encontrado: ${t.dataset.modal}`);return}e.parentElement!==document.body&&document.body.appendChild(e),e.showModal()});for(let e of document.querySelectorAll(`dialog.modal`)){e.addEventListener(`click`,t=>{let n=e.querySelector(`.modal-caja`);if(!n)return;let r=n.getBoundingClientRect();t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom||e.close()});for(let t of e.querySelectorAll(`[data-cerrar-modal]`))t.addEventListener(`click`,()=>e.close())}}}var P=document.getElementById(`app`);document.body.dataset.armazon=e.armazon,P.innerHTML=`
+  `}function A({linkSelector:e=`[data-spy-link]`,offset:t=96}={}){let n=new Map;for(let t of document.querySelectorAll(e)){let e=document.getElementById(t.dataset.spyLink);e&&(n.has(e)||n.set(e,{section:e,links:[]}),n.get(e).links.push(t))}let r=[...n.values()];if(!r.length)return()=>{};let i=null,a=!1;function o(e){if(e!==i){if(i)for(let e of i.links)e.classList.remove(`is-active`),e.removeAttribute(`aria-current`);for(let t of e.links)t.classList.add(`is-active`),t.setAttribute(`aria-current`,`true`);i=e}}function s(){a=!1;let e=window.scrollY;if(e+window.innerHeight>=document.documentElement.scrollHeight-4){o(r[r.length-1]);return}let n=e+t,i=r[0];for(let t of r)if(t.section.getBoundingClientRect().top+e<=n)i=t;else break;o(i)}function c(){a||(a=!0,requestAnimationFrame(s))}return window.addEventListener(`scroll`,c,{passive:!0}),window.addEventListener(`resize`,c),window.addEventListener(`load`,c),s(),c}var j=`0px 0px -12% 0px`,M=70,N=6;function P(){let e=document.querySelectorAll(`[data-anim]`);if(!e.length)return;if(window.matchMedia(`(prefers-reduced-motion: reduce)`).matches||!(`IntersectionObserver`in window)){for(let t of e)t.classList.add(`anim-visible`);return}let t=e=>{let t=Number(e.dataset.animEspera);if(t)return t;let n=e.parentElement;if(!n||!n.hasAttribute(`data-anim-secuencia`))return 0;let r=[...n.children].filter(e=>e.hasAttribute(`data-anim`)).indexOf(e);return Math.min(r,N)*M},n=new IntersectionObserver((e,n)=>{for(let r of e){if(!r.isIntersecting)continue;let e=r.target,i=t(e);i&&(e.style.transitionDelay=`${i}ms`),e.classList.add(`anim-visible`),n.unobserve(e)}},{rootMargin:j,threshold:.05}),r=e=>{let t=e.target;t.hasAttribute(`data-anim`)&&t.style.transitionDelay&&(t.style.transitionDelay=``)};for(let t of e)t.addEventListener(`transitionend`,r,{once:!0}),n.observe(t)}function F(){let e=document.querySelectorAll(`[data-modal]`);if(e.length){for(let t of e)t.addEventListener(`click`,()=>{let e=document.querySelector(t.dataset.modal);if(!e){console.warn(`Modal no encontrado: ${t.dataset.modal}`);return}e.parentElement!==document.body&&document.body.appendChild(e),e.showModal()});for(let e of document.querySelectorAll(`dialog.modal`)){e.addEventListener(`click`,t=>{let n=e.querySelector(`.modal-caja`);if(!n)return;let r=n.getBoundingClientRect();t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom||e.close()});for(let t of e.querySelectorAll(`[data-cerrar-modal]`))t.addEventListener(`click`,()=>e.close())}}}var I=document.getElementById(`app`);document.body.dataset.armazon=e.armazon,I.innerHTML=`
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
   ${D()}
   <div class="app-main">
@@ -298,4 +315,4 @@
     </main>
     ${k()}
   </div>
-`;var F=A({offset:96});O(),M(),N(),c(),m(),window.addEventListener(`load`,F),document.addEventListener(`click`,e=>{e.target.closest(`[data-filtro]`)&&setTimeout(F,60)});
+`;var L=A({offset:96});O(),P(),F(),c(),m(),window.addEventListener(`load`,L),document.addEventListener(`click`,e=>{e.target.closest(`[data-filtro]`)&&setTimeout(L,60)});
