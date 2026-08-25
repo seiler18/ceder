@@ -126,7 +126,12 @@ publicado en `gh-pages`. ~2 minutos. Ver skill `desplegar`.
    se comparten como enlaces.
 10. **Todo `:hover` va dentro de `@media (hover: hover)`.** En pantalla táctil
     el hover se aplica al tocar y se queda pegado hasta el toque siguiente. Lo
-    que responde al dedo es `:active`, fuera del bloque.
+    que responde al dedo es `:active`, fuera del bloque — **y en las fichas sin
+    enlace dentro** (`.tarjeta`, `.destacado`), la clase `.esta-tocada` que pone
+    `src/lib/tacto.js`: ahí `:active` no llega, porque Safari de iOS no lo
+    aplica a un elemento que no sea enlace o botón. Meter el hover en su media
+    query sin dar esa alternativa deja el teléfono sin ninguna respuesta al
+    tocar, que es peor que el hover pegado.
 11. **Lo pulsable mide 44px** (`--toque-min`) en `@media (pointer: coarse)`, y
     los campos del formulario 16px como mínimo: por debajo, Safari de iOS hace
     zoom al enfocarlos y no lo deshace.

@@ -28,6 +28,7 @@ import { initContacto } from './components/sections/contacto.js'
 import { initScrollSpy } from './lib/scrollspy.js'
 import { initReveal } from './lib/reveal.js'
 import { initModales } from './lib/modal.js'
+import { initTacto } from './lib/tacto.js'
 
 const app = document.getElementById('app')
 
@@ -59,6 +60,7 @@ initReveal()     // animaciones de entrada
 initModales()    // diálogos «ver más», si alguna sección los usa
 initTarjetas()   // botoneras de filtro de las rejillas
 initContacto()   // formulario: correo por FormSubmit o WhatsApp
+initTacto()      // respuesta al toque de las fichas (solo en pantalla táctil)
 
 // Al terminar de cargar fuentes e imágenes la página puede haber cambiado de
 // alto: hay que recalcular qué sección está activa.

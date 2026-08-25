@@ -164,14 +164,96 @@ archivo real.
 - `npm run build` correcto: 27 módulos, 30.18 KB de CSS y 27.47 KB de JS,
   favicon y `assets/` copiados.
 
+## Corrección tras la primera revisión en teléfono
+
+El usuario probó el sitio en su móvil y encontró una **regresión que introdujo
+esta misma tanda**: antes, al presionar una tarjeta se encendía; después del
+port, solo se encendía con ratón.
+
+La causa es exacta y vale la pena dejarla escrita, porque es un defecto **de la
+plantilla**, no de este sitio. Al meter el hover en `@media (hover: hover)`
+traje también la regla de respaldo para táctil, que la plantilla escribe así:
+
+```css
+.tarjeta:has(a):active, .destacado:has(a):active { … }
+```
+
+El `:has(a)` está para no prometer navegación en una ficha que no lleva a
+ningún sitio. Pero **en CEDER ninguna ficha lleva enlace dentro**: son 10
+tarjetas y 7 destacados de puro contenido. La regla no seleccionaba nada. Y
+aunque hubiera seleccionado, `:active` tampoco habría bastado: Safari de iOS no
+lo aplica a un `<article>` o un `<li>` si no hay un manejador táctil en él o en
+un ancestro, y un toque de ~90ms se apaga cuando la transición de --medio va
+por la tercera parte.
+
+Lo que antes funcionaba, funcionaba **por accidente**: el hover sin guardar se
+aplicaba al tocar y se quedaba pegado hasta el toque siguiente. Se veía bien al
+tocar una tarjeta y mal al volver de cualquier otra parte.
+
+Arreglo: `src/lib/tacto.js` (nuevo). En punteros gruesos, y solo ahí, marca la
+ficha con `.esta-tocada` mientras el dedo está encima y la deja encendida un
+mínimo de 260ms desde que se posa —el tiempo que tarda la transición en
+completarse—. Escucha delegada en el documento, porque las tarjetas se ocultan
+y se muestran al filtrar por área. `pointercancel` la apaga cuando el navegador
+se queda con el gesto para hacer scroll: sin eso, arrastrar el dedo desde una
+ficha para bajar la dejaría encendida, que es el defecto que veníamos a
+arreglar.
+
+En `components.css`, el estado «ficha encendida» queda escrito dos veces —una
+para `.esta-tocada` y otra para `:hover` dentro de su media query— con un
+comentario que dice que si se retoca una se retoca la otra. Es la única
+duplicación del archivo y no hay forma de evitarla en CSS plano: el hover no
+puede salir de su media query y la clase no puede entrar.
+
+> **Para WebMaker:** esto le pasará igual al siguiente sitio cuyas fichas no
+> lleven enlace. La plantilla necesita su propio hito con `tacto.js` y la regla
+> de `.esta-tocada`. Sin esa anotación, el error se repite.
+
+## Movimiento del título de la portada
+
+Petición del usuario en la misma revisión: que «CEDER SpA» tuviera movimiento,
+«algo serio y elegante».
+
+Se descartó mover el texto (escalarlo, desplazarlo, animarlo letra a letra):
+son gestos que se notan, y lo que se nota en un nombre de empresa compite con
+el nombre. Lo que se hizo es un **destello**: una banda de luz blanca
+translúcida que cruza las letras de izquierda a derecha, en el sentido en que
+se lee, y desaparece.
+
+- El degradado del título **no se toca**. El destello es una segunda capa de
+  `background`, también recortada al texto: la identidad del título es la misma
+  y lo que cambia es que cada tantos segundos le pasa una luz por encima.
+- Es blanco y no un color de la paleta. Un destello de color se lee como un
+  cambio de identidad; uno de luz se lee como luz.
+- `--ciclo-titulo` vale 9s, y el ciclo es **sobre todo pausa**: 2s de destello
+  y 7 de título quieto. Es la parte que separa un detalle de un letrero
+  luminoso, y por eso el ciclo es un token con su razonamiento dentro y no un
+  número suelto.
+- No sigue la regla de los 15-22s a propósito: esa regla es para los fondos,
+  que deben estar siempre en movimiento imperceptible. Esto es un gesto
+  puntual.
+- Se detiene con `prefers-reduced-motion` por la regla global de `base.css`, y
+  el fotograma en el que se queda es el del 100%, con el título limpio.
+
 ## Pendiente
 
 - **Nada de esto está verificado visualmente.** Sigue sin haber navegador
   automatizado. Antes de desplegar hace falta la pasada de la skill
-  `revisar-acabado` sobre `npm run preview`, y en concreto tres cosas que solo
-  se pueden confirmar en un teléfono real: si el escalonado de 70ms se siente o
-  se sufre, si el `:active` de los botones acusa el toque, y si los 44px
-  resuelven los fallos de pulsación en el pie.
+  `revisar-acabado` sobre `npm run preview`, y en concreto lo que solo se puede
+  confirmar en un teléfono real: si el escalonado de 70ms se siente o se sufre,
+  si el `:active` de los botones acusa el toque, y si los 44px resuelven los
+  fallos de pulsación en el pie. La primera pasada del usuario ya devolvió un
+  fallo (el de las fichas), así que esta lista no es un formalismo.
+- **El arreglo del toque tampoco está verificado.** Hay que comprobar tres
+  cosas en el teléfono: que la ficha se encienda al posar el dedo, que se
+  apague sola al soltar, y que **no se quede encendida al arrastrar para hacer
+  scroll** desde encima de una tarjeta — que es el caso que `pointercancel`
+  debería cubrir y el que más fácil se escapa.
+- **El destello del título tampoco.** Dos cosas que mirar: si los 2s de cruce
+  se leen como elegante o como llamativo, y si en un teléfono de gama media el
+  repintado del `<h1>` —que lleva dos `drop-shadow` encima— se nota mientras
+  cruza. Si se notara, la salida es limitar el destello a `@media (hover: hover)`
+  o subir el ciclo, no quitarle las sombras al título.
 - **La portada tarda ~400ms más en aparecer.** Medir y decidir.
 - El sitio está publicado: esto no llega al cliente hasta el próximo
   `git push origin main`.

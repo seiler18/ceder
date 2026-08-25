@@ -168,13 +168,39 @@
      (`text-wrap: balance`, en base.css) se leen de un golpe de vista. */
   max-width: var(--medida-titular);
   margin-inline: auto;
-  /* Degradado propio del título, más claro que --degradado-texto: arranca en
-     blanco para que el nombre destaque sobre el fondo oscuro en vez de
-     fundirse con el azul de las luces del hero. */
-  background: linear-gradient(160deg, #ffffff 0%, var(--primario-claro) 55%, var(--acento) 100%);
+  /* DOS CAPAS DE FONDO, las dos recortadas al texto:
+
+     1. El DESTELLO. Una banda de luz que cruza el nombre de izquierda a
+        derecha y desaparece. Es lo único que se mueve; el degradado de abajo
+        no se toca, así que la identidad del título es la misma de siempre y
+        lo que cambia es que, cada tantos segundos, le pasa una luz por encima.
+        Va en blanco translúcido y no en un color de la paleta: un destello de
+        color se lee como un cambio de identidad, uno de luz se lee como luz.
+        Los extremos son `rgba(255,255,255,0)` y no `transparent` a secas —
+        `transparent` es negro con alfa cero, y al fundir deja las orillas
+        grisáceas en vez de limpias.
+
+     2. El DEGRADADO de siempre, quieto. Más claro que --degradado-texto:
+        arranca en blanco para que el nombre destaque sobre el fondo oscuro en
+        vez de fundirse con el azul de las luces del hero.
+
+     El destello mide 220% del ancho para poder entrar y salir de cuadro sin
+     que se le vea el borde; el degradado, 100%, y su posición no cambia nunca
+     (por eso en cada fotograma de la animación hay que repetir su `0 0`: si se
+     omite una capa, se resetean las dos). */
+  background:
+    linear-gradient(100deg,
+      rgba(255, 255, 255, 0) 38%,
+      rgba(255, 255, 255, 0.65) 50%,
+      rgba(255, 255, 255, 0) 62%),
+    linear-gradient(160deg, #ffffff 0%, var(--primario-claro) 55%, var(--acento) 100%);
+  background-size: 220% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: 0 0, 0 0;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: titulo-destello var(--ciclo-titulo) var(--curva-suave) infinite;
   /* `drop-shadow` y no `text-shadow`: ver el comentario de .section-title en
      layout.css. Aquí la sombra es más marcada porque el título es grande y
      cae justo encima de las luces del fondo. */
@@ -182,6 +208,30 @@
     drop-shadow(0 0 2px rgba(0, 0, 0, 0.95))
     drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7));
 }
+
+/* EL DESTELLO DEL TÍTULO.
+   Con `background-size: 220%`, la posición 100% deja la banda fuera de cuadro
+   por la IZQUIERDA y la 0% fuera por la DERECHA (el porcentaje reparte el
+   sobrante, así que va al revés de lo que uno espera). De ahí que el recorrido
+   sea de 100% a 0%: el destello entra por la izquierda y sale por la derecha,
+   en el sentido en que se lee.
+
+   El salto de vuelta —del 0% del final al 100% del principio— ocurre en el
+   fotograma del 100%, con la banda ya fuera de cuadro: no se ve, así que el
+   bucle no necesita ser simétrico ni usar `alternate`.
+
+   El 22% es la parte del ciclo en que el destello está cruzando: unos 2s de
+   los 9. El resto es pausa deliberada, y es lo que separa un detalle de un
+   letrero luminoso.
+
+   Se detiene solo con `prefers-reduced-motion` (regla global en base.css), y
+   el fotograma en el que se queda es el del 100%, con el título limpio. */
+@keyframes titulo-destello {
+  0%   { background-position: 100% 0, 0 0; }
+  22%  { background-position: 0% 0, 0 0; }
+  100% { background-position: 0% 0, 0 0; }
+}
+
 .hero-lema {
   margin: 0.6rem 0 0;
   font-size: var(--txt-guia);
@@ -476,6 +526,39 @@
     filter var(--medio) var(--curva-salida);
 }
 
+/* FICHA ENCENDIDA — el estado, y se llega a él por DOS vías:
+
+     · con ratón → `:hover`, dentro del @media (hover: hover) de más abajo
+     · con dedo  → la clase .esta-tocada, que pone src/lib/tacto.js
+
+   Las dos tienen que dar EXACTAMENTE lo mismo. Están escritas por separado
+   porque el hover no puede declararse fuera de su media query —en táctil se
+   queda pegado hasta el toque siguiente— y la clase no puede ir dentro, o no
+   llegaría al teléfono. Es la única duplicación del archivo y es deliberada:
+   SI RETOCAS UNA, RETOCA LA OTRA.
+
+   Por qué existe la vía del dedo: estas fichas no llevan enlace dentro (diez
+   tarjetas y siete destacados de puro contenido), así que ni `:active` las
+   alcanza en Safari de iOS ni un `:has(a)` las selecciona. Al meter el hover
+   en su media query el teléfono se quedó sin ninguna respuesta al tocar una
+   tarjeta, que antes sí la tenía —por accidente, porque el hover se aplicaba
+   al tocar y se quedaba pegado—. Ahora la tiene a propósito y se suelta sola. */
+.tarjeta.esta-tocada,
+.destacado.esta-tocada {
+  transform: translateY(var(--levanta-ficha));
+  border-color: var(--borde-vivo);
+  background-color: var(--superficie-viva);
+  box-shadow:
+    var(--sombra-alta),
+    0 0 0 1px var(--borde-vivo) inset,
+    0 10px 30px var(--brillo);
+}
+.tarjeta.esta-tocada .tarjeta-icono,
+.destacado.esta-tocada i {
+  transform: scale(1.06);
+  filter: drop-shadow(0 0 14px var(--brillo-acento));
+}
+
 @media (hover: hover) {
   .tarjeta:hover,
   .destacado:hover {
@@ -498,15 +581,6 @@
     transform: scale(1.06);
     filter: drop-shadow(0 0 14px var(--brillo-acento));
   }
-}
-
-/* En pantalla táctil no hay hover, pero la ficha sí puede acusar el toque.
-   Solo si es pulsable: una tarjeta sin enlace que se hunde al tocarla promete
-   algo que no va a pasar. */
-.tarjeta:has(a):active,
-.destacado:has(a):active {
-  transform: translateY(var(--hunde));
-  border-color: var(--borde-vivo);
 }
 
 /* El teclado tiene que ver lo mismo que el ratón: una ficha con enlace

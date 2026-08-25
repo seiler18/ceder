@@ -223,6 +223,13 @@
   --ciclo-rejilla: 22s;
   --ciclo-latido:  2.4s;
 
+  /* El destello que cruza el nombre de la sociedad en la portada. NO sigue la
+     regla de los 15-22s porque no es un fondo: es un gesto puntual, y el ciclo
+     es sobre todo PAUSA. De los 9s, el destello ocupa 2; los otros 7 el título
+     está quieto. Bajar de 6s convierte un detalle en un parpadeo constante, y
+     eso deja de leerse como serio. */
+  --ciclo-titulo:  9s;
+
   /* ----- Formas ----- */
   --radio:         16px;
   --radio-sm:      10px;
