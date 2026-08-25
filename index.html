@@ -3,7 +3,11 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- `viewport-fit=cover` es lo que hace que `env(safe-area-inset-*)` deje de
+       valer cero en los teléfonos con notch. Sin él, la barra inferior de
+       navegación queda debajo de la raya del gesto y no se puede pulsar.
+       Lo aprovecha responsive.css; en el resto de teléfonos no cambia nada. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
   <title>CEDER SpA | Consultoría, auditoría y planificación estratégica</title>
   <meta name="description" content="Centro de estudios que asesora a organismos públicos, empresas y gremios de todo Chile en consultoría, auditoría y planificación estratégica.">
