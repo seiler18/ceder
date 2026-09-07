@@ -31,6 +31,31 @@ De sus doce comprobaciones, tres son exactamente las del acabado:
 No hay forma de tapar ninguna de las tres con CSS nuevo, y es a propósito: son
 reglas que ya se rompieron una vez cuando solo estaban escritas.
 
+## La herramienta: Impeccable
+
+Este proyecto tiene instalado `/impeccable`. Esta revisión se hace **con** él,
+no a mano:
+
+| Para | Comando |
+|---|---|
+| Ver qué está fuera de sistema, sin tocar nada | `/impeccable audit` |
+| Opinión de dirección de arte sobre lo que hay | `/impeccable critique` |
+| La pasada de acabado propiamente dicha | `/impeccable polish` |
+| Quitar ruido, dejar solo lo que sostiene | `/impeccable distill` |
+| Subir o bajar la intensidad visual | `/impeccable bolder` · `/impeccable quieter` |
+
+El orden que funciona es `audit` → arreglar lo que salga → `polish`. Empezar
+por `polish` sin auditar es pulir encima de un problema estructural.
+
+Y quién manda cuando hay desacuerdo: **el sistema de tokens de este proyecto.**
+Si Impeccable propone un color, un tamaño o una curva que no está en
+`tokens.css`, la respuesta es token o nada — eso lo verifica `npm run check`,
+no el gusto.
+
+Para la comprobación en navegador (que carga, que el móvil se ve bien,
+capturas para comparar) está `/playwright-cli`. La revisión **visual** sigue
+siendo del usuario: ninguna de las dos la sustituye.
+
 ## Los seis ejes
 
 En este orden: la jerarquía manda sobre la tipografía, la tipografía sobre el
