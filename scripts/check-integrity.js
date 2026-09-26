@@ -17,6 +17,11 @@
     10. Ninguna duración ni curva de animación literal fuera de tokens.css.
     11. Toda imagen tiene un `alt` con texto.
     12. Todo `data-anim` usa una de las variantes que existen.
+    13. Todo `target="_blank"` lleva `rel="noopener"`.
+    14. Todo recurso externo (script o hoja de estilo) lleva `integrity`.
+    15. Ningún `onclick=` ni `href="javascript:"` (la CSP los bloquea).
+    17. Ningún <script> en línea si la CSP no lleva 'unsafe-inline'.
+        (El 16 de los sitios hermanos, la ficha JSON-LD, aquí no aplica.)
 
    El punto 5 es el que más veces rompe un sitio: Vite no valida las rutas
    que van dentro de strings de HTML, así que un nombre mal escrito solo se
@@ -292,6 +297,114 @@ for (const m of html.matchAll(/data-anim="([^"]*)"/g)) {
     errores.push(
       `data-anim="${m[1]}" no existe. Variantes: ${[...ANIMS].join(', ')} ` +
         `(ver src/lib/reveal.js).`
+    )
+  }
+}
+
+/* ============================================================
+   13, 14, 15 y 17 · SEGURIDAD DEL DOCUMENTO
+
+   Misma numeración que en los sitios hermanos: el 16 (la ficha JSON-LD)
+   falta porque este index.html todavía no la lleva.
+
+   Las cuatro comprueban cosas que FUNCIONAN igual de bien estando mal, y por
+   eso no se arreglan solas: un `target="_blank"` sin `rel` abre la pestaña,
+   un CDN sin `integrity` sirve el archivo, un `onclick` responde al clic en
+   local. El día en que dejan de estar bien ya es tarde.
+   ============================================================ */
+
+/* Páginas estáticas que copy-assets.js publica tal cual, sin pasar por Vite
+   ni por el mapa. Llevan sus propios enlaces, sus propios recursos externos
+   y su propia CSP, así que las reglas de seguridad las miran igual. Los
+   demás puntos NO: sus rutas son relativas a su carpeta (`../assets/…`) y el
+   punto 5 las daría por rotas. SI SE AÑADE UNA PÁGINA SUELTA, VA AQUÍ. */
+const PAGINAS_SUELTAS = []
+const paginas = [
+  { ruta: 'index.html', html: htmlIndex },
+  ...PAGINAS_SUELTAS.filter(p => existsSync(join(raiz, p))).map(p => ({
+    ruta: p,
+    html: readFileSync(join(raiz, p), 'utf8'),
+  })),
+]
+const htmlSeguridad = [html, ...paginas.map(p => p.html)].join('\n')
+
+/* --- 13. Enlaces externos con rel="noopener" -------------------------
+   Una pestaña abierta con target="_blank" recibe `window.opener` y puede
+   redirigir la pestaña ORIGEN a donde quiera (tabnabbing): el visitante
+   vuelve creyendo que sigue en tu sitio y se encuentra otra cosa. Los
+   navegadores modernos ya lo aplican solos, pero no todos los que abren un
+   sitio lo son, y el atributo no cuesta nada. */
+for (const m of htmlSeguridad.matchAll(/<a\s[^>]*>/gi)) {
+  const etiqueta = m[0]
+  if (!/target\s*=\s*["']_blank["']/i.test(etiqueta)) continue
+  if (/rel\s*=\s*["'][^"']*noopener/i.test(etiqueta)) continue
+  const href = etiqueta.match(/href\s*=\s*["']([^"']*)["']/i)?.[1] || '(sin href)'
+  errores.push(`Enlace con target="_blank" sin rel="noopener": ${href}`)
+}
+
+/* --- 14. Recursos de terceros firmados con integrity -----------------
+   Si el CDN devolviera un archivo distinto al firmado, el navegador lo
+   descarta en vez de ejecutarlo. Es la única defensa real que tiene un sitio
+   estático ante un CDN comprometido.
+
+   Exentos los que sirven contenido VARIABLE y por tanto no tienen hash fijo:
+   Google Fonts devuelve un CSS distinto según el navegador que pregunta, y un
+   «kit» de Font Awesome es un loader generado por cuenta que cambia al tocar
+   su configuración. */
+const SIN_INTEGRIDAD = ['fonts.googleapis.com', 'kit.fontawesome.com']
+for (const m of htmlSeguridad.matchAll(/<(script|link)\s[^>]*>/gi)) {
+  const etiqueta = m[0]
+  const url = etiqueta.match(/(?:src|href)\s*=\s*["'](https?:\/\/[^"']+)["']/i)?.[1]
+  if (!url) continue
+  // De los <link> solo interesan los que traen CÓDIGO o estilos.
+  if (/^<link/i.test(etiqueta) && !/rel\s*=\s*["']stylesheet["']/i.test(etiqueta)) continue
+  if (SIN_INTEGRIDAD.some(h => url.includes(h))) continue
+  if (!/\sintegrity\s*=/i.test(etiqueta)) {
+    errores.push(
+      `Recurso externo sin integrity: ${url}\n` +
+        `      Calcula el hash: curl -s "${url}" | openssl dgst -sha384 -binary | openssl base64 -A`
+    )
+  }
+}
+
+/* --- 15. Nada de código en línea en los atributos --------------------
+   Un `onclick="…"` o un `href="javascript:…"` es lo primero que bloquea la
+   Content-Security-Policy del index.html: funcionaría en local y moriría en
+   silencio en producción. Además mezcla conducta con markup, que es justo lo
+   que separa esta plantilla. */
+const manejadoresVistos = new Set()
+for (const m of htmlSeguridad.matchAll(/<[a-z][^>]*\s(on[a-z]+)\s*=\s*["'][^"']*["'][^>]*>/gi)) {
+  if (manejadoresVistos.has(m[1])) continue
+  manejadoresVistos.add(m[1])
+  errores.push(`Manejador en línea "${m[1]}": usa addEventListener en un módulo de src/lib/`)
+}
+if (/href\s*=\s*["']javascript:/i.test(htmlSeguridad)) {
+  errores.push('href="javascript:…": la Content-Security-Policy lo bloquea en producción')
+}
+
+/* --- 17. Ningún <script> en línea que la CSP vaya a bloquear ---------
+   La CSP lleva `script-src 'self'` a secas porque es lo que vuelve inofensivo
+   cualquier HTML inyectado. El precio es que un <script> escrito en línea
+   (una analítica pegada «tal cual la da el proveedor», un snippet de chat)
+   se bloquea sin más señal que una línea roja en la consola: el widget
+   simplemente no aparece y nadie se entera. Si de verdad hace falta uno, se
+   mueve a un módulo de src/ — no se afloja la CSP.
+   El JSON-LD y cualquier bloque `application/json` son datos, no código: la
+   CSP no los toca y aquí se dejan pasar. Los comentarios se quitan antes de
+   buscar, porque los de index.html hablan de <script> sin serlo. */
+for (const { ruta, html: pagina } of paginas) {
+  const csp = pagina.match(/http-equiv="Content-Security-Policy"\s+content="([^"]*)"/i)?.[1]
+  if (!csp) continue
+  const scriptSrc = csp.match(/(?:^|;)\s*script-src\s([^;]*)/)?.[1] ?? ''
+  if (scriptSrc.includes("'unsafe-inline'")) continue
+  const sinComentariosHtml = pagina.replace(/<!--[\s\S]*?-->/g, '')
+  for (const m of sinComentariosHtml.matchAll(/<script\b([^>]*)>/gi)) {
+    const atributos = m[1]
+    if (/\ssrc\s*=/i.test(atributos)) continue
+    if (/\stype\s*=\s*["']application\/(ld\+)?json["']/i.test(atributos)) continue
+    errores.push(
+      `Script en línea en ${ruta} y su CSP no permite 'unsafe-inline' en ` +
+        `script-src: el navegador lo bloqueará. Muévelo a un módulo con src.`
     )
   }
 }

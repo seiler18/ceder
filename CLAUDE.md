@@ -69,9 +69,11 @@ algo con sustancia, registra el hito (skill `registrar-hito`).
 
 ```bash
 npm run dev      # http://localhost:5173/ceder/
-npm run check    # integridad (12 comprobaciones): rutas, ids, marcadores,
+npm run check    # integridad (16 comprobaciones): rutas, ids, marcadores,
                  # base, anclas + disciplina del CSS (color, tamaño de letra
                  # y duración literales), alt de las imágenes y data-anim
+                 # + seguridad: rel="noopener", integrity en el CDN, nada de
+                 # JS en línea que la CSP de index.html vaya a bloquear
 npm run build    # check + vite build + copy-assets
 npm run preview  # sirve dist/ — único modo que reproduce rutas de producción
 ```
