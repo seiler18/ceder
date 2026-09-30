@@ -246,15 +246,13 @@
       <div class="topbar-inner">
         ${x(`marca`)}
 
-        <nav class="topbar-nav" id="menuPrincipal" aria-label="Secciones">
+        <nav class="topbar-nav" aria-label="Secciones">
           <ul>${S(`nav-link`)}</ul>
-          ${n.length?`<div class="topbar-extras">${C()}</div>`:``}
         </nav>
 
-        <button type="button" class="menu-boton" id="botonMenu"
-                aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
-          <span class="menu-boton-barras" aria-hidden="true"></span>
-        </button>
+        <!-- Fuera del <nav> a propósito: en móvil el <nav> baja a la cinta
+             inferior y las descargas tienen que quedarse arriba. -->
+        ${n.length?`<div class="topbar-extras">${C()}</div>`:``}
       </div>
     </header>
   `}function E(){return`
@@ -277,7 +275,7 @@
         ${n.length?`<div class="topbar-extras">${C()}</div>`:``}
       </div>
     </header>
-  `}function D(){return e.armazon===`sidebar`?E():T()}function O(){let e=document.getElementById(`botonMenu`),t=document.getElementById(`menuPrincipal`);if(!e||!t)return;let n=()=>{t.classList.remove(`abierto`),e.setAttribute(`aria-expanded`,`false`),e.setAttribute(`aria-label`,`Abrir menú`)};e.addEventListener(`click`,()=>{let n=t.classList.toggle(`abierto`);e.setAttribute(`aria-expanded`,String(n)),e.setAttribute(`aria-label`,n?`Cerrar menú`:`Abrir menú`)}),t.addEventListener(`click`,e=>{e.target.closest(`a`)&&n()}),document.addEventListener(`keydown`,e=>{e.key===`Escape`&&n()}),window.matchMedia(`(min-width: 1200px)`).addEventListener(`change`,e=>{e.matches&&n()})}function k(){let n=b.map(e=>`<li><a href="#${e.id}">${e.label}</a></li>`).join(``),r=t.map(e=>`
+  `}function D(){return e.armazon===`sidebar`?E():T()}function O(){let n=b.map(e=>`<li><a href="#${e.id}">${e.label}</a></li>`).join(``),r=t.map(e=>`
       <a href="${e.href}" target="_blank" rel="noopener noreferrer" aria-label="${e.label}">
         <i class="${e.icon}" aria-hidden="true"></i> <span>${e.label}</span>
       </a>
@@ -305,7 +303,7 @@
         © ${e.nombre} ${new Date().getFullYear()}. Todos los derechos reservados.
       </p>
     </footer>
-  `}function A({linkSelector:e=`[data-spy-link]`,offset:t=96}={}){let n=new Map;for(let t of document.querySelectorAll(e)){let e=document.getElementById(t.dataset.spyLink);e&&(n.has(e)||n.set(e,{section:e,links:[]}),n.get(e).links.push(t))}let r=[...n.values()];if(!r.length)return()=>{};let i=null,a=!1;function o(e){if(e!==i){if(i)for(let e of i.links)e.classList.remove(`is-active`),e.removeAttribute(`aria-current`);for(let t of e.links)t.classList.add(`is-active`),t.setAttribute(`aria-current`,`true`);i=e}}function s(){a=!1;let e=window.scrollY;if(e+window.innerHeight>=document.documentElement.scrollHeight-4){o(r[r.length-1]);return}let n=e+t,i=r[0];for(let t of r)if(t.section.getBoundingClientRect().top+e<=n)i=t;else break;o(i)}function c(){a||(a=!0,requestAnimationFrame(s))}return window.addEventListener(`scroll`,c,{passive:!0}),window.addEventListener(`resize`,c),window.addEventListener(`load`,c),s(),c}var j=`0px 0px -12% 0px`,M=70,N=6;function P(){let e=document.querySelectorAll(`[data-anim]`);if(!e.length)return;if(window.matchMedia(`(prefers-reduced-motion: reduce)`).matches||!(`IntersectionObserver`in window)){for(let t of e)t.classList.add(`anim-visible`);return}let t=e=>{let t=Number(e.dataset.animEspera);if(t)return t;let n=e.parentElement;if(!n||!n.hasAttribute(`data-anim-secuencia`))return 0;let r=[...n.children].filter(e=>e.hasAttribute(`data-anim`)).indexOf(e);return Math.min(r,N)*M},n=new IntersectionObserver((e,n)=>{for(let r of e){if(!r.isIntersecting)continue;let e=r.target,i=t(e);i&&(e.style.transitionDelay=`${i}ms`),e.classList.add(`anim-visible`),n.unobserve(e)}},{rootMargin:j,threshold:.05}),r=e=>{let t=e.target;t.hasAttribute(`data-anim`)&&t.style.transitionDelay&&(t.style.transitionDelay=``)};for(let t of e)t.addEventListener(`transitionend`,r,{once:!0}),n.observe(t)}function F(){let e=document.querySelectorAll(`[data-modal]`);if(e.length){for(let t of e)t.addEventListener(`click`,()=>{let e=document.querySelector(t.dataset.modal);if(!e){console.warn(`Modal no encontrado: ${t.dataset.modal}`);return}e.parentElement!==document.body&&document.body.appendChild(e),e.showModal()});for(let e of document.querySelectorAll(`dialog.modal`)){e.addEventListener(`click`,t=>{let n=e.querySelector(`.modal-caja`);if(!n)return;let r=n.getBoundingClientRect();t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom||e.close()});for(let t of e.querySelectorAll(`[data-cerrar-modal]`))t.addEventListener(`click`,()=>e.close())}}}var I=`.tarjeta, .destacado`,L=`esta-tocada`,R=260;function z(){if(!window.matchMedia(`(pointer: coarse)`).matches)return;let e=null,t=0,n=0,r=()=>{clearTimeout(n),e&&e.classList.remove(L),e=null};document.addEventListener(`pointerdown`,n=>{let i=n.target.closest(I);i&&(r(),e=i,t=performance.now(),i.classList.add(L))},{passive:!0}),document.addEventListener(`pointerup`,()=>{if(!e)return;let r=e,i=Math.max(0,R-(performance.now()-t));e=null,clearTimeout(n),n=setTimeout(()=>r.classList.remove(L),i)},{passive:!0}),document.addEventListener(`pointercancel`,r,{passive:!0})}var B=document.getElementById(`app`);document.body.dataset.armazon=e.armazon,B.innerHTML=`
+  `}function k({linkSelector:e=`[data-spy-link]`,offset:t=96}={}){let n=new Map;for(let t of document.querySelectorAll(e)){let e=document.getElementById(t.dataset.spyLink);e&&(n.has(e)||n.set(e,{section:e,links:[]}),n.get(e).links.push(t))}let r=[...n.values()];if(!r.length)return()=>{};let i=null,a=!1;function o(e){if(e!==i){if(i)for(let e of i.links)e.classList.remove(`is-active`),e.removeAttribute(`aria-current`);for(let t of e.links)t.classList.add(`is-active`),t.setAttribute(`aria-current`,`true`);i=e}}function s(){a=!1;let e=window.scrollY;if(e+window.innerHeight>=document.documentElement.scrollHeight-4){o(r[r.length-1]);return}let n=e+t,i=r[0];for(let t of r)if(t.section.getBoundingClientRect().top+e<=n)i=t;else break;o(i)}function c(){a||(a=!0,requestAnimationFrame(s))}return window.addEventListener(`scroll`,c,{passive:!0}),window.addEventListener(`resize`,c),window.addEventListener(`load`,c),s(),c}var A=`0px 0px -12% 0px`,j=70,M=6;function N(){let e=document.querySelectorAll(`[data-anim]`);if(!e.length)return;if(window.matchMedia(`(prefers-reduced-motion: reduce)`).matches||!(`IntersectionObserver`in window)){for(let t of e)t.classList.add(`anim-visible`);return}let t=e=>{let t=Number(e.dataset.animEspera);if(t)return t;let n=e.parentElement;if(!n||!n.hasAttribute(`data-anim-secuencia`))return 0;let r=[...n.children].filter(e=>e.hasAttribute(`data-anim`)).indexOf(e);return Math.min(r,M)*j},n=new IntersectionObserver((e,n)=>{for(let r of e){if(!r.isIntersecting)continue;let e=r.target,i=t(e);i&&(e.style.transitionDelay=`${i}ms`),e.classList.add(`anim-visible`),n.unobserve(e)}},{rootMargin:A,threshold:.05}),r=e=>{let t=e.target;t.hasAttribute(`data-anim`)&&t.style.transitionDelay&&(t.style.transitionDelay=``)};for(let t of e)t.addEventListener(`transitionend`,r,{once:!0}),n.observe(t)}function P(){let e=document.querySelectorAll(`[data-modal]`);if(e.length){for(let t of e)t.addEventListener(`click`,()=>{let e=document.querySelector(t.dataset.modal);if(!e){console.warn(`Modal no encontrado: ${t.dataset.modal}`);return}e.parentElement!==document.body&&document.body.appendChild(e),e.showModal()});for(let e of document.querySelectorAll(`dialog.modal`)){e.addEventListener(`click`,t=>{let n=e.querySelector(`.modal-caja`);if(!n)return;let r=n.getBoundingClientRect();t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom||e.close()});for(let t of e.querySelectorAll(`[data-cerrar-modal]`))t.addEventListener(`click`,()=>e.close())}}}var F=`.tarjeta, .destacado`,I=`esta-tocada`,L=260;function R(){if(!window.matchMedia(`(pointer: coarse)`).matches)return;let e=null,t=0,n=0,r=()=>{clearTimeout(n),e&&e.classList.remove(I),e=null};document.addEventListener(`pointerdown`,n=>{let i=n.target.closest(F);i&&(r(),e=i,t=performance.now(),i.classList.add(I))},{passive:!0}),document.addEventListener(`pointerup`,()=>{if(!e)return;let r=e,i=Math.max(0,L-(performance.now()-t));e=null,clearTimeout(n),n=setTimeout(()=>r.classList.remove(I),i)},{passive:!0}),document.addEventListener(`pointercancel`,r,{passive:!0})}var z=document.getElementById(`app`);document.body.dataset.armazon=e.armazon,z.innerHTML=`
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
   ${D()}
   <div class="app-main">
@@ -313,6 +311,6 @@
       ${y.map(e=>e.render()).join(`
 `)}
     </main>
-    ${k()}
+    ${O()}
   </div>
-`;var V=A({offset:96});O(),P(),F(),c(),m(),z(),window.addEventListener(`load`,V),document.addEventListener(`click`,e=>{e.target.closest(`[data-filtro]`)&&setTimeout(V,60)});
+`;var B=k({offset:96});N(),P(),c(),m(),R(),window.addEventListener(`load`,B),document.addEventListener(`click`,e=>{e.target.closest(`[data-filtro]`)&&setTimeout(B,60)});
