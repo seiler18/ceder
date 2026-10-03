@@ -1,5 +1,6 @@
 import { site } from '../../data/site.js'
 import { hero } from '../../data/hero.js'
+import { montarDotField } from '../../lib/fondo-dotField.js'
 
 /* ============================================================
    HERO / PORTADA
@@ -44,6 +45,9 @@ export function renderHero() {
   return `
     <header class="hero" id="inicio">
       <div class="hero-fondo" aria-hidden="true"></div>
+      <!-- Matriz de puntos animada. La monta initHero() (conducta, no render:
+           los componentes de aquí son funciones puras que no tocan el DOM). -->
+      <div class="hero-puntos" aria-hidden="true"></div>
 
       <!-- SECUENCIA DE ENTRADA DE LA PORTADA. El atributo data-anim-secuencia
            escalona a los hijos 70ms cada uno (src/lib/reveal.js), y el orden
@@ -74,4 +78,26 @@ export function renderHero() {
       </a>
     </header>
   `
+}
+
+/**
+ * Monta el fondo de puntos de la portada, tras inyectar el HTML en #app.
+ * Los colores salen de los tokens de tokens.css (--primario-claro y --acento).
+ *
+ * AQUÍ VA CASI QUIETO: sin ondulación y a baja opacidad. Es el perfil de una
+ * consultora que se evalúa en licitaciones; los puntos son una textura de
+ * «datos / territorio» que solo reacciona al cursor, no un fondo que se mueva
+ * por su cuenta. Con ondulacion: 0 el bucle se duerme en cuanto el cursor se
+ * detiene y no gasta ni un fotograma.
+ */
+export function initHero() {
+  const lienzo = document.querySelector('.hero-puntos')
+  if (!lienzo) return
+  const css = getComputedStyle(document.documentElement)
+  montarDotField(lienzo, {
+    colorA: css.getPropertyValue('--primario-claro').trim() || '#7ba7d4',
+    colorB: css.getPropertyValue('--acento').trim() || '#9ab8d4',
+    opacidad: 0.5,
+    ondulacion: 0,
+  })
 }

@@ -1,0 +1,107 @@
+/* ============================================================
+   EFECTOS DE INTERACCIÓN — estilos de src/lib/efectos.js
+
+   Se importa DESPUÉS de components.css (para ganarle por orden de cascada) y
+   ANTES de responsive.css, que sigue siendo el último. Colores y duraciones
+   salen de tokens.css; este archivo también lo revisa `npm run check`.
+
+   LO QUE NO ESTÁ AQUÍ, A PROPÓSITO. Este sitio es el perfil institucional de
+   una consultora que postula a licitaciones públicas, y su briefing pide «sin
+   superlativos ni cifras que no se puedan probar»:
+     · sin contadores: no hay cifras en la portada y no se van a inventar;
+     · sin chispas al pulsar: es un gesto lúdico, y aquí el tono es formal;
+     · sin destello nuevo en el título: ya lo tiene (--ciclo-titulo);
+     · sin título por palabras: el nombre lleva degradado recortado al texto y
+       con palabras animadas se vuelve invisible.
+   ============================================================ */
+
+/* ----------------------- BRILLO QUE SIGUE AL CURSOR -----------------------
+   El JS reparte `--mx` / `--my` (posición del cursor dentro de la ficha). Va en
+   `hover: hover`, como todo hover de este proyecto: en táctil manda
+   `.esta-tocada` (lib/tacto.js) y un resplandor de cursor no tendría dónde
+   anclarse. */
+@media (hover: hover) and (pointer: fine) {
+  .tarjeta,
+  .destacado {
+    position: relative;
+  }
+  .tarjeta::before,
+  .destacado::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none; /* si no, taparía los enlaces de la ficha */
+    opacity: 0;
+    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), var(--brillo-cursor), transparent 70%);
+    transition: opacity var(--medio) var(--curva-suave);
+  }
+  .tarjeta:hover::before,
+  .destacado:hover::before {
+    opacity: 1;
+  }
+}
+
+/* ----------------------- BOTONES MAGNÉTICOS -----------------------
+   `translate` es una propiedad aparte de `transform`: no pisa el translateY
+   del :hover. Hay que añadirla a la lista de transiciones del botón, o el
+   desplazamiento sería a saltos. El alcance y la fuerza (se pasan en main.js)
+   son menores que en los otros sitios: aquí el imán es un matiz. */
+.hero-btn {
+  translate: var(--mag-x, 0) var(--mag-y, 0);
+  transition:
+    transform var(--rapido) var(--curva-salida),
+    box-shadow var(--medio) var(--curva-salida),
+    background-color var(--medio) var(--curva-suave),
+    color var(--medio) var(--curva-suave),
+    translate var(--rapido) var(--curva-salida);
+}
+
+/* ----------------------- LA RUTA DE «CÓMO TRABAJAMOS» -----------------------
+   EFECTO PROPIO DE LA TEMÁTICA. Las cuatro etapas del método no son
+   comparables entre sí: son CONSECUTIVAS (lo dice el comentario de
+   data/metodologia.js). Una fila de cuatro tarjetas iguales no lo cuenta; una
+   línea que las une y se dibuja de la primera a la última, sí: es el
+   recorrido de un encargo, y para un oferente que se evalúa por su
+   metodología, es la idea que hay que dejar clara.
+
+   Cómo funciona, sin JS nuevo:
+     · la línea es el ::before de la lista, a la altura de los iconos, y queda
+       DETRÁS de las tarjetas (que son opacas): solo se ve en los huecos entre
+       ellas, que es justo lo que hace de conector;
+     · nace con scaleX(0) y crece hasta 1 cuando la última etapa ya es visible
+       (`.anim-visible` lo pone lib/reveal.js, escalonado), así que se dibuja
+       mientras entran las tarjetas;
+     · con movimiento reducido, reveal.js marca todo como visible al instante y
+       la regla global de base.css quita la transición: la línea aparece ya
+       completa, sin dibujarse.
+   Solo se anima `transform`. Y solo en pantallas donde caben las cuatro en una
+   fila: con dos filas o con una columna la línea cruzaría de lado a lado por
+   donde no hay conexión. */
+@media (min-width: 1100px) {
+  #metodologia .destacados {
+    position: relative;
+  }
+  #metodologia .destacado {
+    position: relative;
+    z-index: 1;
+  }
+  #metodologia .destacados::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    /* A la altura del centro del icono: padding de la ficha + medio icono. */
+    top: calc(1.25rem + var(--icono-grande) / 2);
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primario), var(--acento));
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--ruta-dibujo) var(--curva-salida);
+  }
+  #metodologia .destacados:has(.destacado:last-child.anim-visible)::before {
+    transform: scaleX(1);
+  }
+}

@@ -18,6 +18,7 @@ No se duplica información entre ellos. Para añadir un hito, ver la skill
 
 | # | Fecha | Título | Estado |
 |---|---|---|---|
+| [0005](0005-efectos-de-interaccion-institucionales.md) | 2026-10-03 | Efectos de interacción en versión institucional (puntos, brillo, ruta de etapas) | completado, **sin desplegar** |
 | [0004](0004-sistema-de-acabado-desde-el-taller.md) | 2026-08-24 | El sistema de acabado del taller, traído al sitio ya publicado | completado, **sin desplegar** |
 | [0003](0003-fondo-vivo-y-publicacion.md) | 2026-08-23 | Fondo vivo, corte del hero resuelto y publicacion | completado |
 | [0002](0002-ajustes-visuales-y-alcance-nacional.md) | 2026-08-23 | Ajustes visuales tras la primera revisión y alcance nacional | completado |

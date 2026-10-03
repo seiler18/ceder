@@ -36,6 +36,7 @@
   --borde-vivo:    rgba(154, 184, 212, 0.40);
   --brillo:        rgba(59, 110, 165, 0.20);
   --brillo-acento: rgba(154, 184, 212, 0.25);
+  --brillo-cursor: color-mix(in srgb, var(--acento) 12%, transparent); /* resplandor que sigue al cursor en las fichas */
 
   /* ----- Color: DERIVADOS -----
      NO SE TOCAN AL CAMBIAR DE PALETA. Salen con `color-mix()` de los colores
@@ -229,6 +230,11 @@
      está quieto. Bajar de 6s convierte un detalle en un parpadeo constante, y
      eso deja de leerse como serio. */
   --ciclo-titulo:  9s;
+
+  /* Cuánto tarda en dibujarse la línea que une las etapas de «Cómo trabajamos»
+     (efectos.css). Es un gesto de entrada, no un fondo: más largo que --lento
+     para que se vea trazarse, pero por debajo del segundo para no hacer esperar. */
+  --ruta-dibujo:   900ms;
 
   /* ----- Formas ----- */
   --radio:         16px;

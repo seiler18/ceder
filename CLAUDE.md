@@ -62,6 +62,14 @@ algo con sustancia, registra el hito (skill `registrar-hito`).
   componentes son funciones que devuelven strings de HTML.
 - **Iconos:** Font Awesome 6 por CDN (prefijos `fa-solid` / `fa-brands`)
 - **Tipografía:** Google Fonts
+- **Efectos de interacción:** `src/lib/efectos.js`, `src/lib/fondo-dotField.js` y
+  `src/styles/efectos.css`, adaptados de React Bits (MIT + Commons Clause: se
+  usan aquí, **no se redistribuyen**; son copia de los del hub). Solo los que
+  encajan con un perfil institucional: fondo de puntos casi quieto en el hero,
+  brillo del cursor en fichas, imán discreto en los botones y la **ruta** que
+  une las etapas de «Cómo trabajamos». **No** llevan contadores (no hay
+  cifras que probar), chispas (tono formal) ni destello nuevo (el título ya
+  tiene uno). Los motivos están en el encabezado de `efectos.css`.
 - **Deploy:** GitHub Actions → rama `gh-pages` → GitHub Pages
 - **Node:** ≥ 20.19
 
